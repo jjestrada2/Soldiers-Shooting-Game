@@ -3,13 +3,16 @@ package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
 import tankrotationexample.Launcher;
+import tankrotationexample.Resources.ResourcesManager;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Objects;
 
 /**
@@ -70,32 +73,34 @@ public class GameWorld extends JPanel implements Runnable {
         this.world = new BufferedImage(GameConstants.GAME_SCREEN_WIDTH,
                 GameConstants.GAME_SCREEN_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
+    /*
+    * 0 -> nothing
+    * 9 -> unbreakable
+    *
+    * */
+        InputStreamReader isr = new InputStreamReader(ResourcesManager.class.getClassLoader().getResourceAsStream("maps/map1.csv"));
+        try(BufferedReader mapReader = new BufferedReader(isr)){
+            int row = 0;
+            String[] gameItems;
+            while(mapReader.ready()){
+                gameItems = mapReader.readLine().strip().split(",");
+                for(int col = 0;col< gameItems.length;col++){
+                    String gameObject = gameItems[col];
+                    if("0".equals(gameObject)) continue;
+                   GameObject.newInstance(gameObject,col*30,row*30);
 
-        BufferedImage t1img = null;
-        BufferedImage t2img = null;
-        try {
-            /*
-             * note class loaders read files from the out folder (build folder in Netbeans) and not the
-             * current working directory. When running a jar, class loaders will read from within the jar.
-             */
-            t1img = ImageIO.read(
-                    Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank1.png"),
-                    "Could not find tank1.png")
-            );
-            t2img = ImageIO.read(
-                    Objects.requireNonNull(GameWorld.class.getClassLoader().getResource("tank2.png"),
-                            "Could not find tank1.png")
-            );
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
+                }
+                row++;
+            }
+        }catch (IOException e){
+            throw new RuntimeException(e);
         }
 
-        t1 = new Tank(300, 300, 0, 0, (short) 0, t1img);
+        t1 = new Tank(300, 300, 0, 0, (short) 0, ResourcesManager.getSprite("tank1"));
         TankControl tc1 = new TankControl(t1, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE);
         this.lf.getJf().addKeyListener(tc1);
 
-        t2 = new Tank(400, 300, 0, 0, (short) 180, t2img);
+        t2 = new Tank(400, 300, 0, 0, (short) 180, ResourcesManager.getSprite("tank2"));
         TankControl tc2 = new TankControl(t2, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_NUMPAD0);
         this.lf.getJf().addKeyListener(tc2);
     }

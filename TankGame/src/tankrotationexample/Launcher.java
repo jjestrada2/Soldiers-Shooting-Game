@@ -1,8 +1,9 @@
 package tankrotationexample;
 
+import tankrotationexample.Resources.ResourcesManager;
 import tankrotationexample.game.GameWorld;
-import tankrotationexample.menus.EndGamePanel;
-import tankrotationexample.menus.StartMenuPanel;
+import tankrotationexample.menus.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
@@ -37,7 +38,7 @@ public class  Launcher {
 
     public Launcher(){
         this.jf = new JFrame();             // creating a new JFrame object
-        this.jf.setTitle("Zombie War");
+        this.jf.setTitle("413 WARZONE");
 
         // setting the title of the JFrame window.
         // when the GUI is closed, this will also shut down the VM
@@ -52,9 +53,13 @@ public class  Launcher {
          * start panel will be used to view the start menu. It will contain
          * two buttons start and exit.
          */
+        JPanel SplashPanel = new SplashPanel(this);
+        JPanel ControlsPanel = new ControlsMenuPanel(this);
         JPanel startPanel = new StartMenuPanel(this); // create a new start panel
+        JPanel SignInPanel = new SingInMenuPanel(this);
         this.gamePanel = new GameWorld(this); // create a new game panel
         this.gamePanel.InitializeGame(); // initialize game, but DO NOT start game
+
         /*
          * end panel is used to show the end game panel.  it will contain
          * two buttons restart and exit.
@@ -62,17 +67,29 @@ public class  Launcher {
         JPanel endPanel = new EndGamePanel(this); // create a new end game pane;
         cl = new CardLayout(); // creating a new CardLayout Panel
         this.mainPanel.setLayout(cl); // set the layout of the main panel to our card layout
+        this.mainPanel.add(SplashPanel,"splash");
+        this.mainPanel.add(SignInPanel,"singIn");
+        this.mainPanel.add(ControlsPanel,"controls");
         this.mainPanel.add(startPanel, "start"); //add the start panel to the main panel
         this.mainPanel.add(gamePanel, "game");   //add the game panel to the main panel
         this.mainPanel.add(endPanel, "end");    // add the end game panel to the main panel
         this.jf.add(mainPanel); // add the main panel to the JFrame
         this.jf.setResizable(false); //make the JFrame not resizable
-        this.setFrame("start"); // set the current panel to start panel
+        this.setFrame("splash"); // set the current panel to start panel
     }
 
     public void setFrame(String type){
         this.jf.setVisible(false); // hide the JFrame
         switch (type) {
+            case "splash" ->
+                    this.jf.setSize(GameConstants.START_MENU_SCREEN_WIDTH, GameConstants.START_MENU_SCREEN_HEIGHT);
+
+            case "singIn" ->
+                this.jf.setSize(GameConstants.START_MENU_SCREEN_WIDTH, GameConstants.START_MENU_SCREEN_HEIGHT);
+
+            case "controls"->
+                this.jf.setSize(GameConstants.START_MENU_SCREEN_WIDTH, GameConstants.START_MENU_SCREEN_HEIGHT);
+
             case "start" ->
                 // set the size of the jFrame to the expected size for the start panel
                     this.jf.setSize(GameConstants.START_MENU_SCREEN_WIDTH, GameConstants.START_MENU_SCREEN_HEIGHT);
@@ -100,7 +117,8 @@ public class  Launcher {
     }
 
     public static void main(String[] args) {
-        (
-                new Launcher()).initUIComponents();
+        ResourcesManager.loadResources();
+        (new Launcher()).initUIComponents();
     }
+
 }
