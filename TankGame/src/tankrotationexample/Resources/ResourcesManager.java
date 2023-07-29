@@ -1,5 +1,7 @@
 package tankrotationexample.Resources;
 
+import tankrotationexample.game.Bullet;
+
 import javax.imageio.ImageIO;
 import javax.sound.sampled.Clip;
 import java.awt.image.BufferedImage;
@@ -37,15 +39,13 @@ public class ResourcesManager {
             ResourcesManager.sprites.put("unbreak",loadSprite("walls/unbreak.jpg"));
             ResourcesManager.sprites.put("break1",loadSprite("walls/break1.jpg"));
             ResourcesManager.sprites.put("break2",loadSprite("walls/break2.jpg"));
+            ResourcesManager.sprites.put("bullet",loadSprite("bullet/bullet.jpg"));
 
         }catch (IOException e){
             throw new RuntimeException(e);
         }
     }
 
-    public static void loadResources(){
-        ResourcesManager.initSprites();
-    }
 
 
     public static BufferedImage getSprite(String type) {
@@ -53,5 +53,15 @@ public class ResourcesManager {
             throw new RuntimeException("%s is missing from sprite resources".formatted(type));
         }
         return ResourcesManager.sprites.get(type);
+    }
+    public static void loadResources(){
+        ResourcesManager.initSprites();
+    }
+
+    public static void main(String[] args){
+        ResourcesPool<Bullet> bPool = new ResourcesPool<>("bullet", 300);
+        bPool.fillPool(Bullet.class,300);
+        ResourcesManager.loadResources();
+
     }
 }

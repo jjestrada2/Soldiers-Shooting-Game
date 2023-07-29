@@ -1,6 +1,8 @@
 package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
+import tankrotationexample.Resources.ResourcesPool;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -16,9 +18,15 @@ public class Tank{
     private float vx; //speed of x
     private float vy; //speed of Y
     private float angle;
+    static ResourcesPool<Bullet> bPool;
 
     private float R = 5; //speed factor how fast go my tank
     private float ROTATIONSPEED = 3.0f;
+
+    static {
+        bPool = new ResourcesPool<>("bullet", 300);
+        bPool.fillPool(Bullet.class,300);
+    }
 
     private BufferedImage img;
     private boolean UpPressed;

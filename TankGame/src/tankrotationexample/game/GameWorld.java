@@ -13,6 +13,8 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,6 +27,8 @@ public class GameWorld extends JPanel implements Runnable {
     private Tank t2;
     private final Launcher lf; // go back to the screens I need (pause function)?
     private long tick = 0;
+
+    List <GameObject> gobjs = new ArrayList<>(800);
 
     /**
      *
@@ -78,7 +82,7 @@ public class GameWorld extends JPanel implements Runnable {
     * 9 -> unbreakable
     *
     * */
-        InputStreamReader isr = new InputStreamReader(ResourcesManager.class.getClassLoader().getResourceAsStream("maps/map1.csv"));
+        InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(ResourcesManager.class.getClassLoader().getResourceAsStream("maps/map1.csv")));
         try(BufferedReader mapReader = new BufferedReader(isr)){
             int row = 0;
             String[] gameItems;
@@ -87,7 +91,7 @@ public class GameWorld extends JPanel implements Runnable {
                 for(int col = 0;col< gameItems.length;col++){
                     String gameObject = gameItems[col];
                     if("0".equals(gameObject)) continue;
-                   GameObject.newInstance(gameObject,col*30,row*30);
+                        this.gobjs.add(GameObject.newInstance(gameObject,col*30,row*30));
 
                 }
                 row++;
@@ -112,6 +116,7 @@ public class GameWorld extends JPanel implements Runnable {
         Graphics2D buffer = world.createGraphics();
         buffer.setColor(Color.BLACK);
         buffer.fillRect(0,0,GameConstants.GAME_SCREEN_WIDTH,GameConstants.GAME_SCREEN_HEIGHT );
+        this.gobjs.forEach(gameObject -> gameObject.drawImage(buffer));
         this.t1.drawImage(buffer);
         this.t2.drawImage(buffer);
         g2.drawImage(world, 0, 0, null);
