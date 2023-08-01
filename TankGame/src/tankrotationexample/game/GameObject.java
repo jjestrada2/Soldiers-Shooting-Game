@@ -21,4 +21,7 @@ public abstract class GameObject {
 
 
     public abstract void drawImage(Graphics g);
+    public abstract Rectangle getHitBox();
+
+    public abstract void collides(GameObject obj2);
 }

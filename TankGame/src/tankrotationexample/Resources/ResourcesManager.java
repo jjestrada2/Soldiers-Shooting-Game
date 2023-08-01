@@ -32,7 +32,7 @@ public class ResourcesManager {
             ResourcesManager.sprites.put("menu", loadSprite("menu/title1.png"));
             ResourcesManager.sprites.put("splash",loadSprite("menu/title.png"));
             ResourcesManager.sprites.put("controls",loadSprite("menu/controls.png"));
-            ResourcesManager.sprites.put("floor",loadSprite("floor/bg.bmp"));
+            ResourcesManager.sprites.put("floor",loadSprite("floor/bg.jpg"));
             ResourcesManager.sprites.put("health",loadSprite("powerups/health.png"));
             ResourcesManager.sprites.put("shield",loadSprite("powerups/shield.png"));
             ResourcesManager.sprites.put("speed",loadSprite("powerups/speed.png"));

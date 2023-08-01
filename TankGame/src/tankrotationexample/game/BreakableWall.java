@@ -7,13 +7,22 @@ public class BreakableWall extends GameObject {
 
     float x,y;
     BufferedImage img;
-
+    private Rectangle hitBox;
 
     public BreakableWall(float x, float y, BufferedImage img) {
         this.x = x;
         this.y = y;
         this.img = img;
+        hitBox = new Rectangle((int)x,(int)y,this.img.getWidth(),this.img.getHeight());
 
+
+    }
+    public Rectangle getHitBox(){
+        return this.hitBox.getBounds();
+    }
+
+    @Override
+    public void collides(GameObject obj2) {
 
     }
 

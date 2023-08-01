@@ -9,6 +9,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+
 public class SingInMenuPanel extends JPanel {
      private BufferedImage signInBackground;
      private final Launcher lf;
@@ -39,17 +43,32 @@ public class SingInMenuPanel extends JPanel {
         username2Field.setSize(new Dimension(200, 50));
         username2Field.setFont(new Font("Courier New", Font.BOLD, 24));
 
-        JButton Controls = new JButton("Continue");
-        Controls.setSize(new Dimension(200, 100));
-        Controls.setFont(new Font("Courier New", Font.BOLD, 24));
-        Controls.setBounds(140, 400, 200, 50);
-        Controls.setFocusPainted(false);
-        Controls.setBorderPainted(false);
-        Controls.setBackground(new Color(0,0, 104));
-        Controls.setForeground(Color.WHITE);
-        Controls.addActionListener((actionEvent -> this.lf.setFrame("start")));
+        JButton ContinueBtn = new JButton("Continue");
+        ContinueBtn.setSize(new Dimension(200, 100));
+        ContinueBtn.setFont(new Font("Courier New", Font.BOLD, 24));
+        ContinueBtn.setBounds(140, 400, 200, 50);
+        ContinueBtn.setFocusPainted(false);
+        ContinueBtn.setBorderPainted(false);
+        ContinueBtn.setBackground(new Color(0,0, 104));
+        ContinueBtn.setForeground(Color.WHITE);
+        ContinueBtn.addActionListener((actionEvent ->{
+            //connection to mysql
+            try {
+                String driverName = "com.mysql.jdbc.Driver";
+                Class.forName(driverName);
+                //Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/users?autoReconnect=true&useSSL=false","root","1234");
 
-        this.add(Controls);
+                this.lf.setFrame("start");
+                //con.close();
+
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+
+        }));
+
+        this.add(ContinueBtn);
         this.add(username1Field);
         this.add(username2Field);
         this.add(username1Label);
