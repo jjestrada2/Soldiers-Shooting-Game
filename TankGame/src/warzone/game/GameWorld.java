@@ -3,7 +3,26 @@ package warzone.game;
 
 import warzone.constants.GameConstants;
 import warzone.Launcher;
+import warzone.constants.ResourcesConstants;
+import warzone.display.Camera;
+import warzone.display.GameHUD;
+import warzone.display.Minimap;
+import warzone.game.moveableObjects.MoveableObject;
+import warzone.game.moveableObjects.projectiles.Bullet;
+import warzone.game.moveableObjects.projectiles.Projectile;
+import warzone.game.moveableObjects.tanks.Tank;
+import warzone.game.moveableObjects.tanks.TankControl;
+import warzone.game.stationaryObjects.StationaryObject;
+import warzone.game.stationaryObjects.powerups.Heal;
+import warzone.game.stationaryObjects.powerups.FastBulletLoading;
+import warzone.game.stationaryObjects.powerups.Speed;
+import warzone.game.stationaryObjects.walls.BreakableWall;
+import warzone.game.stationaryObjects.walls.UnbreakableWall;
+import warzone.loaders.BackgroundLoader;
+import warzone.loaders.GameMapLoader;
 import warzone.loaders.ResourcesManager;
+import warzone.util.CheatController;
+import warzone.util.Sound;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +34,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * @author anthony-pc
@@ -22,157 +42,258 @@ import java.util.Objects;
 public class GameWorld extends JPanel implements Runnable {
 
     private BufferedImage world;// entire world image
+
+    private Minimap minimap;
+    private Camera camera1;
+    private Camera camera2;
+    private GameHUD gameHUD1;
+    private GameHUD gameHUD2;
     private Tank t1;
     private Tank t2;
+
+    private TankControl tc1;
+    private TankControl tc2;
+    private CheatController cheatController;
     private final Launcher lf; // go back to the screens I need (pause function)?
     private long tick = 0;
+    private GameObjectCollections<MoveableObject> moveableObjectGameObjectCollections;
+    private GameObjectCollections<StationaryObject> stationaryObjectGameObjectCollections;
+    private GameObjectCollections<GameObject> collisionLessGameObjectCollections;
+    List<GameObject> gobjs = new ArrayList<>(800);
+    private ArrayList<int[]> emptySpaces;
+    private GameState.RunningState runningState;
+    private String gameMap;
 
-    List <GameObject> gobjs = new ArrayList<>(800);
 
     /**
      *
      */
     public GameWorld(Launcher lf) {
         this.lf = lf;
-
+        ResourcesManager.loadResources();
+        System.out.println("Resources Loaded Successfully");
     }
 
     @Override
     public void run() {
         try {
-            while (true) {
-                this.tick++;
-                this.t1.update(); // update tank
-                this.t2.update();
-                //her i need to add checkcolitions
-                this.checkCollisions();
-
-                this.repaint();   // redraw game it comes from componet.java
-                /*
-                 * Sleep for 1000/144 ms (~6.9ms). This is done to have our 
-                 * loop run at a fixed rate per/sec. 
-                */
-                Thread.sleep(1000 / 144);
+            if (!this.runningState.getState()) {
+                System.out.println("Reset Game");
+                this.resetGame();
             }
+
+            Sound music = new Sound(ResourcesManager.getSound(ResourcesConstants.SOUND_BACKGROUND_MUSIC));
+            Thread musicThread = new Thread(music);
+            musicThread.start();
+
+            while(true){
+                this.tick++;
+                this.moveableObjectGameObjectCollections.update(); //make update to tank and bullets
+                checkCollisions();
+                deleteGarbage();
+                this.repaint();
+
+                Thread.sleep(1000/144); //To loop at a fixed rate per/sec
+
+                if(this.t2.getIsLoser()){
+                    GameState.PLAYER_WINNER = 1;
+                    this.runningState = this.runningState.nextState();
+                    music.stopSound();
+                    musicThread.interrupt();
+                    this.lf.setFrame("end");
+                    return;
+                } else if (this.t1.getIsLoser()) {
+                    GameState.PLAYER_WINNER = 2;
+                    this.runningState = this.runningState.nextState();
+                    music.stopSound();
+                    musicThread.interrupt();
+                    this.lf.setFrame("end");
+                }
+            }
+
+
         } catch (InterruptedException ignored) {
             System.out.println(ignored);
         }
     }
-
-    private void checkCollisions() {
-        for(int i = 0; i < this.gobjs.size();i++){
-            GameObject obj1 = this.gobjs.get(i);
-            if(obj1 instanceof Wall|| obj1 instanceof BreakableWall || obj1 instanceof Health || obj1 instanceof Speed|| obj1 instanceof Shield){
-                continue;
-            }
-            for(int j = 0;j< this.gobjs.size();j++){
-                if(i==j) continue;
-                GameObject obj2 = this.gobjs.get(j);
-                if(obj1.getHitBox().intersects(obj2.getHitBox())){
-                    obj1.collides(obj2);
-                }
-            }
-        }
-    }
-
-    /**
-     * Reset game to its initial state.
-     */
-    public void resetGame() {
+    public void resetGame(){
         this.tick = 0;
-        this.t1.setX(300);
-        this.t1.setY(300);
-        //mising respawn power up respawn walls, lives...
+        this.runningState = GameState.RunningState.RUNNING;
+        GameState.hitboxState = GameState.hitboxState.OFF;
+        this.moveableObjectGameObjectCollections.clear();
+        this.stationaryObjectGameObjectCollections.clear();
+        this.collisionLessGameObjectCollections.clear();
+        this.emptySpaces.clear();
+        this.loadMap();
+        this.emptySpaces = GameMapLoader.getInstance().getEmptySpaces();
+        BackgroundLoader.getInstance().initializeBackground();
+        this.initTanks();
+        this.t1.setValidSpawnLocation(this.emptySpaces);
+        this.t2.setValidSpawnLocation(this.emptySpaces);
+        this.initHUD();
+        this.initControllers();
+        
     }
 
-    /**
-     * Load all resources for Tank Wars Game. Set all Game Objects to their
-     * initial state as well.
-     */
-    public void InitializeGame() {//read resources build world
-        this.world = new BufferedImage(GameConstants.GAME_WORLD_WIDTH,
-                GameConstants.GAME_WORLD_HEIGHT,
-                BufferedImage.TYPE_INT_RGB);
-    /*
-    * 0 -> nothing
-    * 9 -> unbreakable
-    *
-    * */
-        InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(ResourcesManager.class.getClassLoader().getResourceAsStream("maps/map1.csv")));
-        try(BufferedReader mapReader = new BufferedReader(isr)){
-            int row = 0;
-            String[] gameItems;
-            while(mapReader.ready()){
-                gameItems = mapReader.readLine().strip().split(",");
-                for(int col = 0;col< gameItems.length;col++){
-                    String gameObject = gameItems[col];
-                    if("0".equals(gameObject)) continue;
-                        this.gobjs.add(GameObject.newInstance(gameObject,col*30,row*30));
-
-                }
-                row++;
-            }
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-
-        t1 = new Tank(300, 300, 0, 0, (short) 0, ResourcesManager.getSprite("tank1"));
-        TankControl tc1 = new TankControl(t1, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE,KeyEvent.VK_X);
-        this.lf.getJf().addKeyListener(tc1);
-
-        t2 = new Tank(400, 300, 0, 0, (short) 180, ResourcesManager.getSprite("tank2"));
-        TankControl tc2 = new TankControl(t2, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_NUMPAD0,KeyEvent.VK_L);
-        this.lf.getJf().addKeyListener(tc2);
-
-        this.gobjs.add(t1);
-        this.gobjs.add(t2);
+    public void InitializeGame(){
+        this.runningState = GameState.RunningState.RUNNING;
+        this.world = new BufferedImage(GameConstants.GAME_WORLD_WIDTH,GameConstants.GAME_WORLD_HEIGHT,BufferedImage.TYPE_INT_RGB);
+        this.moveableObjectGameObjectCollections = new GameObjectCollections<>();
+        this.stationaryObjectGameObjectCollections = new GameObjectCollections<>();
+        this.collisionLessGameObjectCollections = new GameObjectCollections<>();
+        this.emptySpaces = new ArrayList<>();
+        loadMap();
+        this.emptySpaces = GameMapLoader.getInstance().getEmptySpaces();
+        BackgroundLoader.getInstance().initializeBackground();
+        this.initTanks();
+        this.t1.setValidSpawnLocation(this.emptySpaces);
+        this.t2.setValidSpawnLocation(this.emptySpaces);
+        this.initHUD();
+        this.initControllers();
+        cheatController = new CheatController();
+        this.lf.getJf().addKeyListener(cheatController);
     }
 
-    private void drawFloor(Graphics2D buffer){
-        BufferedImage floor = ResourcesManager.getSprite("floor");
-        for(int i = 0; i < GameConstants.GAME_WORLD_WIDTH;i+=320){
-            for(int j = 0; j < GameConstants.GAME_WORLD_HEIGHT;j+=240){
-                buffer.drawImage(floor,i,j,null);
-            }
-        }
-    }
-
-    private void renderMiniMap(Graphics2D g2, BufferedImage world){
-        BufferedImage mm =world.getSubimage(0,0,GameConstants.GAME_WORLD_WIDTH,GameConstants.GAME_WORLD_HEIGHT );
-        g2.scale(.2,.2);
-        g2.drawImage(mm,
-                (GameConstants.GAME_SCREEN_WIDTH*5)/2-(GameConstants.GAME_WORLD_WIDTH/2),
-                GameConstants.GAME_SCREEN_HEIGHT,null);
-
-    }
-    private void renderSplitScreens(Graphics2D g2, BufferedImage world){
-        BufferedImage lh = world.getSubimage((int)this.t1.getScreen_x(),(int) this.t1.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT*2/3);
-        BufferedImage rh = world.getSubimage((int)this.t2.getScreen_x(),(int) this.t2.getScreen_y(),GameConstants.GAME_SCREEN_WIDTH/2,GameConstants.GAME_SCREEN_HEIGHT*2/3);
-
-        //g2.drawImage(world, 0, 0, null);
-
-        g2.drawImage(lh,0,0,null);
-        g2.drawImage(rh,GameConstants.GAME_SCREEN_WIDTH/2+4,0,null);
-
-    }
     @Override
-    //Overwrite the look of the Jpanel
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g){
         Graphics2D g2 = (Graphics2D) g;
         Graphics2D buffer = world.createGraphics();
-        this.drawFloor(buffer);
+        BackgroundLoader.getInstance().drawImage(buffer);
 
-        //buffer.fillRect(0,0,GameConstants.GAME_SCREEN_WIDTH,GameConstants.GAME_SCREEN_HEIGHT );
+        g2.setColor(Color.black);
+        g2.fillRect(0, 0, GameConstants.GAME_SCREEN_WIDTH, GameConstants.GAME_SCREEN_HEIGHT);
+
+        this.moveableObjectGameObjectCollections.draw(buffer);
+        this.stationaryObjectGameObjectCollections.draw(buffer);
+        this.collisionLessGameObjectCollections.draw(buffer);
+
+        camera1.drawSplitScreen(world);
+        camera2.drawSplitScreen(world);
+        BufferedImage leftScreen = camera1.getSplitScreen();
+        BufferedImage rightScreen = camera2.getSplitScreen();
+        g2.drawImage(leftScreen, 0, 0, null);
+        g2.drawImage(rightScreen, (GameConstants.GAME_SCREEN_WIDTH / 2) + 4, 0, null);
+
+        gameHUD1.drawHUD(g2);
+        gameHUD2.drawHUD(g2);
+        minimap.drawMinimap(world, g2);
+
+    }
+
+    private void initTanks() {
+        if(((Tank) moveableObjectGameObjectCollections.get(0)).getPlayerId() == 1) {
+            this.t1 = (Tank) moveableObjectGameObjectCollections.get(0);
+            this.t2 = (Tank) moveableObjectGameObjectCollections.get(1);
+        } else {
+            this.t1 = (Tank) moveableObjectGameObjectCollections.get(1);
+            this.t2 = (Tank) moveableObjectGameObjectCollections.get(0);
+        }
+    }
+
+    private void initControllers() {
+        this.tc1 = new TankControl(
+                this.t1,
+                KeyEvent.VK_W,
+                KeyEvent.VK_S,
+                KeyEvent.VK_A,
+                KeyEvent.VK_D,
+                KeyEvent.VK_SPACE,
+                KeyEvent.VK_1
+
+        );
+
+        this.tc2 = new TankControl(
+                this.t1,
+                KeyEvent.VK_UP,
+                KeyEvent.VK_DOWN,
+                KeyEvent.VK_LEFT,
+                KeyEvent.VK_RIGHT,
+                KeyEvent.VK_ENTER,
+                KeyEvent.VK_SHIFT
+
+        );
+    }
+
+    private void initHUD() {
+        this.minimap = new Minimap();
+        this.camera1 = new Camera(t1, (minimap.getScaledHeight() / 2) + 12);
+        this.camera2 = new Camera(t2, (minimap.getScaledHeight() / 2) + 12);
+        this.gameHUD1 = new GameHUD(
+                this.t1,
+                0,
+                (GameConstants.GAME_SCREEN_HEIGHT - ((this.minimap.getScaledHeight() / 2 + 12))),
+                this.minimap.getScaledWidth(),
+                ResourcesManager.getSprite(ResourcesConstants.IMAGES_HUD_1)
+        );
+
+        this.gameHUD2 = new GameHUD(
+                this.t2,
+                (GameConstants.GAME_SCREEN_WIDTH - this.minimap.getScaledWidth()),
+                (GameConstants.GAME_SCREEN_HEIGHT - ((this.minimap.getScaledHeight() / 2 + 12))),
+                this.minimap.getScaledWidth(),
+                ResourcesManager.getSprite(ResourcesConstants.IMAGES_HUD_2)
+        );
+    }
+
+    private void loadMap() {
+        //choose map function...
+        GameMapLoader.getInstance().initializeMap(this, ResourcesManager.getGameMap(this.gameMap));
+    }
+
+    private void deleteGarbage() {
+        for(int i = 0; i < this.moveableObjectGameObjectCollections.size(); i++) {
+            MoveableObject moveableObject = this.moveableObjectGameObjectCollections.get(i);
+            //Delete used bullets
+            if(moveableObject instanceof Projectile && ((Projectile) moveableObject).getIsDestroyed()) {
+                this.moveableObjectGameObjectCollections.remove(moveableObject);
+            }
+        }
+
+        for(int i = 0; i < this.stationaryObjectGameObjectCollections.size(); i++) {
+            StationaryObject stationaryObject = this.stationaryObjectGameObjectCollections.get(i);
+            //Delete breakable walls if destroy it
+            if(stationaryObject.getIsDestroyed()) {
+                this.stationaryObjectGameObjectCollections.remove(stationaryObject);
+            }
+        }
+    }
+
+    private void checkCollisions() {
+
+        for(int i = 0; i < this.moveableObjectGameObjectCollections.size(); i++) {
+            MoveableObject moveableObject = this.moveableObjectGameObjectCollections.get(i);
+            //check collision between stationary objects
+            for(int j = 0; j < this.stationaryObjectGameObjectCollections.size(); j++) {
+                StationaryObject stationaryObject = this.stationaryObjectGameObjectCollections.get(j);
+                if(moveableObject.getHitBox().intersects(stationaryObject.getHitBox())) {
+                    moveableObject.handleCollision(stationaryObject);
+                }
+            }
+            //check collision between movable objects
+            for(int k = 0; k < this.moveableObjectGameObjectCollections.size(); k++) {
+                MoveableObject otherMoveableObject = this.moveableObjectGameObjectCollections.get(k);
+                if(moveableObject.getHitBox().intersects(otherMoveableObject.getHitBox())) {
+                    moveableObject.handleCollision(otherMoveableObject);
+                }
+            }
+        }
+    }
 
 
-        this.gobjs.forEach(gameObject -> gameObject.drawImage(buffer));
-        this.t1.drawImage(buffer);
-        this.t2.drawImage(buffer);
-        //g2.drawImage(world, 0, 0, null);
-        buffer.setColor(Color.BLACK);
-        renderSplitScreens(g2,world);
-        renderMiniMap(g2,world);
 
+    public void addToCollisionlessGameObjectCollections(GameObject gameObject) {
+        this.collisionLessGameObjectCollections.add(gameObject);
+    }
 
+    public void addToStationaryGameObjectCollections(StationaryObject stationaryObject) {
+        this.stationaryObjectGameObjectCollections.add(stationaryObject);
+    }
+
+    public void addToMovableGameObjectCollections(MoveableObject  moveableObject) {
+        this.moveableObjectGameObjectCollections.add(moveableObject);
+    }
+    public void selectMap(String map) {
+        this.gameMap = map;
+        this.resetGame();
     }
 }

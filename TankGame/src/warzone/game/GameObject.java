@@ -1,14 +1,24 @@
 package warzone.game;
 
-import warzone.loaders.ResourcesManager;
-
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public abstract class GameObject {
+    protected float x;
+    protected float y;
+    protected BufferedImage img;
+    protected Rectangle hitBox;
+    public GameObject(float x, float y,BufferedImage img){
+        this.x = x;
+        this.y = y;
+        this.img = img;
+        this.hitBox = new Rectangle((int)x,(int)y,this.img.getWidth(),this.img.getHeight());
 
+    }
+/*
     public static GameObject newInstance(String type, float x, float y) throws UnsupportedOperationException{
         return switch (type){
-            case "9" -> new Wall(x,y,ResourcesManager.getSprite("unbreak"));
+            case "9" -> new UnbreakableWall(x,y,ResourcesManager.getSprite("unbreak"));
             case "1" -> new BreakableWall(x,y, ResourcesManager.getSprite("break1"));
             case "2" -> new BreakableWall(x,y, ResourcesManager.getSprite("break2"));
             case "3" -> new BreakableWall(x,y, ResourcesManager.getSprite("break3"));
@@ -19,11 +29,20 @@ public abstract class GameObject {
             case "8" -> new BreakableWall(x,y, ResourcesManager.getSprite("speed"));
             default -> throw new UnsupportedOperationException();
         };
-    }
+    }*/
 
 
     public abstract void drawImage(Graphics g);
-    public abstract Rectangle getHitBox();
+    public abstract void drawHitbox(Graphics g);
+    public Rectangle getHitBox(){
+        return this.hitBox.getBounds();
+    }
+    public float getX(){
+        return this.x;
+    }
+    public float getY(){
+        return this.y;
+    }
+    public abstract void update();
 
-    public abstract void collides(GameObject obj2);
 }

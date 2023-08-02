@@ -2,7 +2,7 @@ package warzone.loaders;
 
 import warzone.Resources.ResourcesPool;
 import warzone.constants.ResourcesConstants;
-import warzone.game.Bullet;
+import warzone.game.moveableObjects.projectiles.Bullet;
 
 import javax.imageio.ImageIO;
 import javax.sound.sampled.*;
@@ -53,21 +53,24 @@ public class ResourcesManager {
     }
     private static void initSprites(){
         try {
-            ResourcesManager.sprites.put("tank1", loadSprite("tank/tank1.png"));
-            ResourcesManager.sprites.put("tank2", loadSprite("tank/tank2.png"));
-            ResourcesManager.sprites.put("menu", loadSprite("menu/title1.png"));
-            ResourcesManager.sprites.put("splash",loadSprite("menu/title.png"));
-            ResourcesManager.sprites.put("controls",loadSprite("menu/controls.png"));
-            ResourcesManager.sprites.put("floor",loadSprite("floor/bg.jpg"));
-            ResourcesManager.sprites.put("health",loadSprite("powerups/health.png"));
-            ResourcesManager.sprites.put("shield",loadSprite("powerups/shield.png"));
-            ResourcesManager.sprites.put("speed",loadSprite("powerups/speed.png"));
-            ResourcesManager.sprites.put("unbreak",loadSprite("walls/unbreak.png"));
-            ResourcesManager.sprites.put("break1",loadSprite("walls/break1.png"));
-            ResourcesManager.sprites.put("break2",loadSprite("walls/break2.png"));
-            ResourcesManager.sprites.put("break3",loadSprite("walls/break3.png"));
-            ResourcesManager.sprites.put("break4",loadSprite("walls/break4.png"));
-            ResourcesManager.sprites.put("bullet",loadSprite("bullet/bullet.jpg"));
+            ResourcesManager.sprites.put(ResourcesConstants.TANK1, loadSprite("tank/"+ResourcesConstants.TANK1));
+            ResourcesManager.sprites.put(ResourcesConstants.TANK2, loadSprite("tank/"+ResourcesConstants.TANK2));
+            ResourcesManager.sprites.put(ResourcesConstants.MENU_TITLE1, loadSprite("menu/"+ResourcesConstants.MENU_TITLE1));
+            ResourcesManager.sprites.put(ResourcesConstants.SPLASH,loadSprite("menu/"+ResourcesConstants.SPLASH));
+            ResourcesManager.sprites.put(ResourcesConstants.CONTROLS,loadSprite("menu/"+ResourcesConstants.CONTROLS));
+            ResourcesManager.sprites.put(ResourcesConstants.FLOOR,loadSprite("floor/"+ResourcesConstants.FLOOR));
+            ResourcesManager.sprites.put(ResourcesConstants.HEALTH,loadSprite("powerups/"+ResourcesConstants.HEALTH));
+            ResourcesManager.sprites.put(ResourcesConstants.SHIELD,loadSprite("powerups/"+ResourcesConstants.SHIELD));
+            ResourcesManager.sprites.put(ResourcesConstants.SPEED,loadSprite("powerups/"+ResourcesConstants.SPEED));
+            ResourcesManager.sprites.put(ResourcesConstants.UNBREAK,loadSprite("walls/"+ResourcesConstants.UNBREAK));
+            ResourcesManager.sprites.put(ResourcesConstants.BREAK1,loadSprite("walls/"+ResourcesConstants.BREAK1));
+            ResourcesManager.sprites.put(ResourcesConstants.BREAK2,loadSprite("walls/"+ResourcesConstants.BREAK2));
+            ResourcesManager.sprites.put(ResourcesConstants.BREAK3,loadSprite("walls/"+ResourcesConstants.BREAK3));
+            ResourcesManager.sprites.put(ResourcesConstants.BREAK4,loadSprite("walls/"+ResourcesConstants.BREAK4));
+            ResourcesManager.sprites.put(ResourcesConstants.BULLET,loadSprite("bullet/"+ResourcesConstants.BULLET));
+            ResourcesManager.sprites.put(ResourcesConstants.IMAGES_HUD_1,loadSprite("hud/"+ResourcesConstants.IMAGES_HUD_1));
+            ResourcesManager.sprites.put(ResourcesConstants.IMAGES_HUD_2,loadSprite("hud/"+ResourcesConstants.IMAGES_HUD_2));
+
 
         }catch (IOException e){
             throw new RuntimeException(e);
@@ -102,7 +105,7 @@ public class ResourcesManager {
             clip.open(as);
             ResourcesManager.sounds.put(ResourcesConstants.SOUND_BULLET_SHOTGUN, clip);
             //----------------------------------------------------------------------------
-           /* as = readAudio("sounds/" + ResourcesConstants.SOUND_HIT);
+           as = readAudio("sounds/" + ResourcesConstants.SOUND_HIT);
             clip = AudioSystem.getClip();
             clip.open(as);
             ResourcesManager.sounds.put(ResourcesConstants.SOUND_HIT, clip);
@@ -110,7 +113,7 @@ public class ResourcesManager {
             as = readAudio("sounds/" + ResourcesConstants.SOUND_DIE);
             clip = AudioSystem.getClip();
             clip.open(as);
-            ResourcesManager.sounds.put(ResourcesConstants.SOUND_DIE, clip);*/
+            ResourcesManager.sounds.put(ResourcesConstants.SOUND_DIE, clip);
             //----------------------------------------------------------------------------
             as = readAudio("sounds/" + ResourcesConstants.SOUND_PICKUP);
             clip = AudioSystem.getClip();
@@ -214,6 +217,7 @@ public class ResourcesManager {
         ResourcesManager.initSprites();
         ResourcesManager.initSounds();
         ResourcesManager.initAnimations();
+        ResourcesManager.initMaps();
     }
 
     public static void main(String[] args){

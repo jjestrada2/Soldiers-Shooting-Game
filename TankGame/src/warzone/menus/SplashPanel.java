@@ -1,6 +1,7 @@
 package warzone.menus;
 
 import warzone.Launcher;
+import warzone.constants.ResourcesConstants;
 import warzone.loaders.ResourcesManager;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class SplashPanel extends JPanel {
     public SplashPanel(Launcher lf) {
         this.lf = lf;
 
-        menuBackground = ResourcesManager.getSprite("splash");
+        menuBackground = ResourcesManager.getSprite(ResourcesConstants.SPLASH);
 
         this.setBackground(Color.BLACK);
         this.setLayout(null);

@@ -2,6 +2,7 @@ package warzone.menus;
 
 
 import warzone.Launcher;
+import warzone.constants.ResourcesConstants;
 import warzone.loaders.ResourcesManager;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class StartMenuPanel extends JPanel {
     public StartMenuPanel(Launcher lf) {
         this.lf = lf;
 
-            menuBackground = ResourcesManager.getSprite("menu");
+            menuBackground = ResourcesManager.getSprite(ResourcesConstants.MENU_TITLE1);
 
         this.setBackground(Color.BLACK);
         this.setLayout(null);

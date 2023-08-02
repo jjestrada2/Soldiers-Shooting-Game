@@ -1,4 +1,6 @@
-package warzone.game;
+package warzone.game.moveableObjects.tanks;
+
+import warzone.game.moveableObjects.tanks.Tank;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;

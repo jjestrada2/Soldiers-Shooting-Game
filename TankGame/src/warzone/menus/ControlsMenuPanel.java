@@ -2,6 +2,7 @@ package warzone.menus;
 
 
 import warzone.Launcher;
+import warzone.constants.ResourcesConstants;
 import warzone.loaders.ResourcesManager;
 
 import javax.swing.*;
@@ -15,7 +16,7 @@ public class ControlsMenuPanel extends JPanel {
 
     public ControlsMenuPanel(Launcher lf){
         this.lf = lf;
-        background = ResourcesManager.getSprite("controls");
+        background = ResourcesManager.getSprite(ResourcesConstants.CONTROLS);
         this.setBackground(Color.BLACK);
         this.setLayout(null);
 
