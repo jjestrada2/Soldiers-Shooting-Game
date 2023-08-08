@@ -8,7 +8,7 @@ import java.awt.image.BufferedImage;
 
 public class Minimap {
 
-    private static final double SCALE = 0.1;
+    private static final double SCALE = 0.15;
     private final double scaledWidth;
     private final double scaledHeight;
 

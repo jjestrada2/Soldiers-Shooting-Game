@@ -126,29 +126,68 @@ public class ResourceManager {
 
     public static void initAnimations() {
         try {
+            //-----------HANDGUN----------------------------
             String basename = "survivor-idle_handgun_%d";
             ResourceManager.animations.put(
-                    "WALK",
+                    "WALK_HANDGUN",
                     readAnimations(18, "survivor-idle_handgun_%d", "animations/idle/", ".png")
             );
 
             basename = "survivor-meleeattack_handgun_%d";
             ResourceManager.animations.put(
-                    "MELEE",
+                    "MELEE_HANDGUN",
                     readAnimations(14, basename, "animations/meleeattack/", ".png")
             );
 
 
             basename = "survivor-shoot_handgun_%d";
             ResourceManager.animations.put(
-                    "SHOOT",
+                    "SHOOT_HANDGUN",
                     readAnimations(2, basename, "animations/shoot/", ".png")
             );
 
             basename = "survivor-reload_handgun_%d";
             ResourceManager.animations.put(
-                    "RELOAD",
+                    "RELOAD_HANDGUN",
                     readAnimations(14, basename, "animations/reload/", ".png")
+            );
+
+            //-----------RIFLE----------------------------
+            basename = "survivor-move_rifle_%d";
+            ResourceManager.animations.put(
+                    "WALK_RIFLE",
+                    readAnimations(18, basename, "animations/rifle/move/", ".png")
+            );
+
+
+            basename = "survivor-shoot_rifle_%d";
+            ResourceManager.animations.put(
+                    "SHOOT_RIFLE",
+                    readAnimations(2, basename, "animations/rifle/shoot/", ".png")
+            );
+
+
+
+            /*
+
+            //-----------SHOTGUN----------------------------
+            basename = "survivor-move_shotgun_%d";
+            ResourceManager.animations.put(
+                    "WALK_SHOTGUN",
+                    readAnimations(18, basename, "animations/shotgun/move/", ".png")
+            );
+
+
+            basename = "survivor-shoot_shotgun_%d";
+            ResourceManager.animations.put(
+                    "SHOOT_SHOTGUN",
+                    readAnimations(2, basename, "animations/shotgun/shoot/", ".png")
+            );
+*/
+            basename = "skeleton-move_%d";
+            ResourceManager.animations.put(
+                    "ZOMBIE",
+                    readAnimations(16, basename, "animations/zombie/move/", ".png")
             );
 
 
@@ -159,9 +198,9 @@ public class ResourceManager {
     }
 
     public static void initMaps() {
-        ResourceManager.gameMaps.add(ResourceConstants.MAP_2FORT);
-        ResourceManager.gameMaps.add(ResourceConstants.MAP_PILLAR);
-        ResourceManager.gameMaps.add(ResourceConstants.MAP_TUNNELS);
+        ResourceManager.gameMaps.add(ResourceConstants.MAP_1_CSV);
+        ResourceManager.gameMaps.add(ResourceConstants.MAP_2_CSV);
+        ResourceManager.gameMaps.add(ResourceConstants.MAP_3_CSV);
     }
 
     private static BufferedImage readImg(String resource) throws IOException {

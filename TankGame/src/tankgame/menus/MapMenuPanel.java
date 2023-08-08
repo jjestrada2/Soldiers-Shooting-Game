@@ -19,9 +19,9 @@ public class MapMenuPanel extends MenuPanel {
     public MapMenuPanel(Launcher lf, GameWorld gamePanel) {
         super(lf, "menu.png");
         this.gamePanel = gamePanel;
-        map1 = createMapButtons(ResourceConstants.MAP_2FORT, 175, 40, 175, 40);
-        map2 = createMapButtons(ResourceConstants.MAP_PILLAR, 175, 140, 175, 40);
-        map3 = createMapButtons(ResourceConstants.MAP_TUNNELS, 175, 280, 175, 40);
+        map1 = createMapButtons(ResourceConstants.MAP_1_CSV, 175, 40, 175, 40);
+        map2 = createMapButtons(ResourceConstants.MAP_2_CSV, 175, 140, 175, 40);
+        map3 = createMapButtons(ResourceConstants.MAP_3_CSV, 175, 280, 175, 40);
         mainMenu = super.createButton("BACK", 24, 175, 400, 175, 40, "start");
         this.add(map1);
         this.add(map2);

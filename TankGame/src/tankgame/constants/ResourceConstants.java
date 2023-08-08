@@ -39,7 +39,7 @@ public class ResourceConstants {
     /*
      * -------------- MAP RESOURCE CONSTANTS ----------------
      */
-    public static final String MAP_2FORT = "2fort.csv";
-    public static final String MAP_PILLAR = "pillar.csv";
-    public static final String MAP_TUNNELS = "tunnels.csv";
+    public static final String MAP_1_CSV = "map1.csv";
+    public static final String MAP_2_CSV = "map2.csv";
+    public static final String MAP_3_CSV = "map3.csv";
 }

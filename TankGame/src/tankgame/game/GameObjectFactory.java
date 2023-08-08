@@ -2,6 +2,7 @@ package tankgame.game;
 
 import tankgame.constants.GameObjectID;
 import tankgame.constants.ResourceConstants;
+import tankgame.game.dynamicObjects.zombies.Zombie;
 import tankgame.menus.SingInMenuPanel;
 import tankgame.util.ResourceManager;
 import tankgame.game.immobileObjects.powerups.DoubleShoot;
@@ -18,6 +19,17 @@ public class GameObjectFactory {
         }
 
         switch(id) {
+            case GameObjectID.ZOMBIE -> {
+                return new Zombie(
+                        row * ResourceManager.getImage(ResourceConstants.IMAGES_TANK_ARROW).getWidth(),
+                        col * ResourceManager.getImage(ResourceConstants.IMAGES_TANK_ARROW).getHeight(),
+                        0,
+                        0,
+                        0,
+                        2,
+                        ResourceManager.getImage(ResourceConstants.IMAGES_TANK_ARROW)
+                );
+            }
 
             case GameObjectID.PLAYER_1 -> {
                 return new Tank(

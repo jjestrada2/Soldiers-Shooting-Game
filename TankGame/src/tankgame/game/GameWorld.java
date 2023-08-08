@@ -53,6 +53,7 @@ public class GameWorld extends JPanel implements Runnable {
     public GameWorld(Launcher lf) {
         this.lf = lf;
         System.out.println("Initializing Resources . . .");
+
         ResourceManager.initImages();
         ResourceManager.initSounds();
         ResourceManager.initAnimations();
@@ -280,7 +281,8 @@ public class GameWorld extends JPanel implements Runnable {
                 KeyEvent.VK_S,
                 KeyEvent.VK_A,
                 KeyEvent.VK_D,
-                KeyEvent.VK_SPACE
+                KeyEvent.VK_SPACE,
+                KeyEvent.VK_1
         );
         this.tc2 = new TankController(
                 this.t2,
@@ -288,7 +290,8 @@ public class GameWorld extends JPanel implements Runnable {
                 KeyEvent.VK_DOWN,
                 KeyEvent.VK_LEFT,
                 KeyEvent.VK_RIGHT,
-                KeyEvent.VK_ENTER
+                KeyEvent.VK_ENTER,
+                KeyEvent.VK_CONTROL
         );
         this.lf.getJf().addKeyListener(tc1);
         this.lf.getJf().addKeyListener(tc2);

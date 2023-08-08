@@ -48,15 +48,20 @@ public class Tank extends DynamicObject {
     private BufferedImage bulletImage;
     private Sound bulletSpawnSound;
     private Sound bulletCollideSound;
+    private boolean weaponPressed;
+    private ArrayList<Integer> weaponPool;
+    private int currentWeapon;
+    private int numOfWeapons = 2;
 
     public Tank(float x, float y, float vx, float vy, float angle, BufferedImage img, int playerID, String name, GameWorld gw) {
-        super(x, y, 2, vx, vy, angle, img);
+        super(x, y,  vx, vy, angle,2, img);
         this.playerID = playerID;
         this.name = name;
         this.gw = gw;
         this.animation = this.initAnimation("WALK");
         this.animation.start();
         this.initBullet();
+        currentWeapon = 1;
     }
 
     public void setName(String name){
@@ -65,15 +70,35 @@ public class Tank extends DynamicObject {
     private Animation initAnimation(String animationType) {
 
             if(animationType.equals("WALK")){
-                return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK"));
-
+                if(currentWeapon == 0){
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK_HANDGUN"));
+                } else if (currentWeapon == 1) {
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK_RIFLE"));
+                }
             } else if (animationType.equals("SHOOT")) {
-                return new Animation(this.x, this.y, ResourceManager.getAnimation("SHOOT"));
-            } else if (animationType.equals("RELOAD")) {
-                return new Animation(this.x, this.y, ResourceManager.getAnimation("RELOAD"));
+                if(currentWeapon == 0){
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("SHOOT_HANDGUN"));
+                } else if (currentWeapon == 1) {
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("SHOOT_RIFLE"));
+                }
+            }else if(animationType.equals("RELOAD")){
+                if(currentWeapon == 0){
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("RELOAD_HANDGUN"));
+                } else if (currentWeapon == 1) {
+                    return new Animation(this.x, this.y, ResourceManager.getAnimation("RELOAD_HANDGUN"));
+                }
             }
 
-        return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK"));
+        if(animationType.equals("WALK_HANDGUN")){
+                return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK_RIFLE"));
+
+            } else if (animationType.equals("SHOOT_HANDGUN")) {
+                return new Animation(this.x, this.y, ResourceManager.getAnimation("SHOOT_RIFLE"));
+            } else if (animationType.equals("RELOAD_HANDGUN")) {
+                return new Animation(this.x, this.y, ResourceManager.getAnimation("RELOAD_HANDGUN"));
+            }
+
+        return new Animation(this.x, this.y, ResourceManager.getAnimation("WALK_HANDGUN"));
 
 
     }
@@ -140,6 +165,9 @@ public class Tank extends DynamicObject {
         }
         this.shootPressed = true;
     }
+    public void toggleWeaponPressed(){
+        this.weaponPressed = true;
+    }
 
     void unToggleUpPressed() {
         this.UpPressed = false;
@@ -162,6 +190,10 @@ public class Tank extends DynamicObject {
         this.animation = this.initAnimation("WALK");
         this.animation.start();
 
+    }
+
+    void unToggleWeaponPressed(){
+        this.weaponPressed = false;
     }
 
     @Override
@@ -187,6 +219,10 @@ public class Tank extends DynamicObject {
             this.shoot();
             tick = 0;
         }
+        
+        if(this.weaponPressed){
+            this.changeWeapon();
+        }
 
         this.animation.setX(this.x);
         this.animation.setY(this.y);
@@ -197,6 +233,18 @@ public class Tank extends DynamicObject {
         checkBorder();
     }
 
+    private void changeWeapon() {
+
+        if(this.currentWeapon > this.numOfWeapons){
+            currentWeapon = 0;
+            this.animation = this.initAnimation("WALK");
+            this.animation.start();
+        }else{
+            currentWeapon++;
+            this.animation = this.initAnimation("WALK");
+            this.animation.start();
+        }
+    }
 
 
     private void rotateLeft() {
@@ -245,7 +293,6 @@ public class Tank extends DynamicObject {
         if(this.currentHealthPoints <= 0 && this.lives > 0) {
             this.lives -= 1;
             this.currentHealthPoints = this.maxHealthPoints;
-            System.out.println("[TANK]: " + this.name + " LOST A LIFE. LIVES REMAINING: " + this.lives);
             this.randomizeSpawnLocation();
         } else if(this.currentHealthPoints <= 0) {
             this.isLoser = true;
@@ -256,7 +303,7 @@ public class Tank extends DynamicObject {
         int maxChoices = this.validSpawnLocations.size();
         int randomSelection = (new Random()).nextInt(maxChoices);
         int[] location = this.validSpawnLocations.get(randomSelection);
-        System.out.println("[TANK]: " + this.name + " respawned @ row: " + (location[0] + 1) + " col: " + (location[1] + 1));
+
         this.setPosition(
                 location[1] * ResourceConstants.FLOOR_TILE_DIMENSION,
                 location[0] * ResourceConstants.FLOOR_TILE_DIMENSION

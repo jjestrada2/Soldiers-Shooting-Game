@@ -61,8 +61,8 @@ public class Launcher {
 
     private void initUIComponents(){
         this.mainPanel = new JPanel(); // create a new main panel
-        this.splashPanel = new SplashPanel(this);
-        this.singInPanel = new SingInMenuPanel(this);
+       /* this.splashPanel = new SplashPanel(this);
+        this.singInPanel = new SingInMenuPanel(this);*/
         this.startPanel = new StartMenuPanel(this); // create a new start panel
         this.gamePanel = new GameWorld(this); // create a new game panel
         this.mapMenuPanel = new MapMenuPanel(this, gamePanel); // create a new map menu panel
@@ -70,23 +70,23 @@ public class Launcher {
         this.endPanel = new EndGamePanel(this); // create a new end game panel;
         cl = new CardLayout(); // creating a new CardLayout Panel
         this.mainPanel.setLayout(cl); // set the layout of the main panel to our card layout
-        this.mainPanel.add(splashPanel,"splash");
-        this.mainPanel.add(singInPanel,"singIn");
+       /* this.mainPanel.add(splashPanel,"splash");
+        this.mainPanel.add(singInPanel,"singIn");*/
         this.mainPanel.add(startPanel, "start"); //add the start panel to the main panel
         this.mainPanel.add(mapMenuPanel, "maps"); // add the map menu panel to the main panel
         this.mainPanel.add(gamePanel, "game");   //add the game panel to the main panel
         this.mainPanel.add(endPanel, "end");    // add the end game panel to the main panel
         this.jf.add(mainPanel); // add the main panel to the JFrame
         this.jf.setResizable(false); //make the JFrame not resizable
-        this.setFrame("splash"); // set the current panel to start panel
+        this.setFrame("start"); // set the current panel to start panel
     }
 
     public void setFrame(String type){
         this.jf.setVisible(false); // hide the JFrame
         switch (type) {
-            case "splash", "singIn" ->
+          /*  case "splash", "singIn" ->
                     this.jf.setSize(GameScreenConstants.START_MENU_SCREEN_WIDTH, GameScreenConstants.START_MENU_SCREEN_HEIGHT);
-
+*/
             case "start" ->
                 // set the size of the jFrame to the expected size for the start panel
                     this.jf.setSize(GameScreenConstants.START_MENU_SCREEN_WIDTH, GameScreenConstants.START_MENU_SCREEN_HEIGHT);
